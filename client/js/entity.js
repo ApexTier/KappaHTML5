@@ -15,28 +15,24 @@ Entity.prototype = Object.create(PIXI.Sprite.prototype);
 Entity.prototype.constructor = Entity;
 
 Entity.prototype.move = function (dt) {
-    var distanceX = Math.abs(this.position.x - this.destination.x);
-    var distanceY = Math.abs(this.position.y - this.destination.y);
 
+    var distanceX = this.destination.x - this.position.x;
+    var distanceY = this.destination.y - this.position.y;
+    var sqrDist = Math.sqrt(distanceX*distanceX + distanceY*distanceY);
+    var lerp = 0.5; //0.5 is our lerp factor higher = faster lower = smoother
+    
+    //position is the same as destination dont move...
     if (distanceX + distanceY == 0)
-        return; 
+        return;
     
-    var modX = distanceX / (distanceX + distanceY);
-    var modY = distanceY / (distanceX + distanceY);
-    var dirX = this.destination.x > this.position.x ? 1 : -1;
-    var dirY = this.destination.y > this.position.y ? 1 : -1;
-    var stepX = dirX * modX * this.velocity * dt;
-    var stepY = dirY * modY * this.velocity * dt;
+    //normalized direction means to give a unit vector of length 1
+    distanceX /= sqrDist;
+    distanceY /= sqrDist;
+
+    //now that we have normalized direction and sqr dist we can lerp based on time
+    this.position.x += distanceX  * (sqrDist*lerp); 
+    this.position.y += distanceY  * (sqrDist*lerp);
     
-    if (Math.abs(stepX) > distanceX)
-        this.position.x = this.destination.x;
-    else
-        this.position.x += stepX;
-        
-    if (Math.abs(stepY) > distanceY)
-        this.position.y = this.destination.y;
-    else
-        this.position.y += stepY;
     
 };
 
